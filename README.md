@@ -36,6 +36,7 @@ Example interoperation with asyncio:
     # monocle oroutines can yield to native coroutines seamlessly:
     @_o
     def slow_sixth_power(x):
+        yield asyncio.sleep(x)  # monocle.util.sleep is in fact this same function
         y = yield slow_cube(x * x)
         yield Return(y)
         
