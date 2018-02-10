@@ -7,6 +7,7 @@ native asyncio framework. It has two main goals:
 
 1) Allow for a smooth, incremental transition away from monocle-based
 code to native asyncio code.
+
 2) Where monocle had significantly better ideas and APIs than are
 available on asyncio, continue to refine those components to be useful
 to all users of asyncio.
@@ -19,6 +20,8 @@ tricle at times tries to expose underlying asyncio APIs and mechanisms
 rather than wrap them completely.  Some more essoteric monocle
 functionality may not be copied, especially where asyncio alternatives
 exist.
+
+## Examples
 
 Example interoperation with asyncio:
 
@@ -44,3 +47,14 @@ Example interoperation with asyncio:
     async def slow_fourth_power(x):
         y = await slow_square(x * x).future
         return y
+
+## Recommendations
+
+When porting code from monocle to python3, these steps are recommended:
+
+1) Run 2to3 on your code, and install tricle.
+
+2) Run tests, and fix any bugs by replacing broken pieces with native
+asyncio components. Always fix bugs by moving toward more native code.
+
+3) Over time, rewrite oroutines to use native async/await syntax.
