@@ -324,6 +324,8 @@ class HttpServer(Service, HttpRouter):
             monocle_request = HttpRequest.from_aiohttp_request(request)
             resp = await self.handle_request(monocle_request).future
             status, headers, body = extract_response(resp)
+            if 'content-type' not in {k.lower() for k in headers.keys()}:
+                headers['Content-Type'] = 'text/html'
             headers = {(k, str(v)) for k, v in headers.items()}
             return aiohttp.web.Response(status=status, headers=headers, body=body)
         self.app.router.add_route('*', r'/{path:.*}', _handler)

@@ -19,9 +19,9 @@ class Connection(object):
         self._writer = writer
         self.writing = False
         self.flush_cb = Callback()
-        self.write_encoding = 'utf-8'
         self.timeout = None
         self._current_timeout = None
+        self._closed_flag = False
 
     async def read_some(self):
         # there's no equivalent of this "read as much as can be read
@@ -33,25 +33,27 @@ class Connection(object):
         return await self._reader.readexactly(size)
 
     async def read_until(self, s):
-        return await self._reader.readuntil(s.encode(self.write_encoding))
+        return await self._reader.readuntil(s)
 
     async def readline(self):
         return await self._reader.readline()
 
     async def write(self, data):
-        self._writer.write(data.encode(self.write_encoding))
+        self._writer.write(data)
         await self.flush()
 
     async def flush(self):
         return await self._writer.drain()
 
     def close(self):
+        self._closed_flag = True
         if self._writer:
             self._writer.close()
 
     def is_closed(self):
         # note that this actually doesn't return True until all data
         # has been read
+        return self._closed_flag
         return self._reader.at_eof()
 
 
