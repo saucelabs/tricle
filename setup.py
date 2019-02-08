@@ -6,7 +6,11 @@ except ImportError:
 
 from monocle import VERSION
 
-install_requires = []
+install_requires = [
+    "multidict",
+    "yarl",
+    "aiohttp"
+]
 
 setup(name="tricle",
       version=VERSION,
