@@ -1,11 +1,7 @@
-import sys
 import time
-import monocle
-monocle.init(sys.argv[1])
-
-from monocle.script_util import run
 
 from monocle import _o
+from monocle.script_util import run
 from monocle.stack.network import add_service, Service, Client, ConnectionLost
 
 
@@ -13,10 +9,10 @@ from monocle.stack.network import add_service, Service, Client, ConnectionLost
 def handle_echo(conn):
     while True:
         try:
-            message = yield conn.read_until('\r\n')
+            message = yield conn.read_until(b'\r\n')
         except ConnectionLost:
             break
-        yield conn.write("you said: %s\r\n" % message.strip())
+        yield conn.write(("you said: %s\r\n" % message.decode().strip()).encode())
 
 
 @_o
@@ -27,13 +23,13 @@ def do_echos():
         t = time.time()
         for x in range(10000):
             msg = "hello, world #%s!" % x
-            yield client.write(msg + '\r\n')
-            echo_result = yield client.read_until("\r\n")
-            assert echo_result.strip() == "you said: %s" % msg
+            yield client.write(msg.encode() + b'\r\n')
+            echo_result = yield client.read_until(b'\r\n')
+            assert echo_result.decode().strip() == "you said: %s" % msg
         print('10000 loops in %.2fs' % (time.time() - t))
     finally:
         client.close()
 
 
-add_service(Service(handle_echo, port=8000))
+add_service(Service(handle_echo, port=8000, bindaddr="localhost"))
 run(do_echos)

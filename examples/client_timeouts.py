@@ -1,8 +1,6 @@
-import sys
 import monocle
 
 from monocle import _o
-monocle.init(sys.argv[1])
 
 from monocle.stack import eventloop
 from monocle.stack.network import Client
@@ -24,9 +22,11 @@ def main():
     """
     c.timeout = 1
     yield c.connect('google.com', 80)
+    yield c.write(b"GET / HTTP/1.0\r\n\r\n")
     c.timeout = 0
     x = yield c.read(40000)
     print(x)
+    eventloop.halt()
 
 
 monocle.launch(main)
