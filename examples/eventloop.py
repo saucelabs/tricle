@@ -17,6 +17,8 @@ def nonyielding_oroutine(x, z=1):
 @_o
 def fail():
     raise Exception("whoo")
+    # make this a generator function, to demonstrate exceptions work properly in this context
+    yield sleep(1)
 
 
 eventloop.queue_task(0, yielding_oroutine, x="oroutine worked")
