@@ -17,6 +17,7 @@ import yarl
 
 import asyncio
 import aiohttp.web
+from aiohttp import ClientTimeout, ClientSession
 
 from monocle import _o, Return, log_exception, VERSION
 from monocle.stack.network import Service, SSLService, ConnectionLost, Client
@@ -127,27 +128,32 @@ class HttpClient(object):
     DEFAULT_PORTS = {'http': 80,
                      'https': 443}
 
-    def __init__(self):
-        self.connector = None
-        self.scheme = None
-        self.host = None
-        self.port = None
+    def __init__(self,
+                 scheme: str = None,
+                 host: str = None,
+                 port: int = None,
+                 is_proxy: bool = False):
+        self.scheme = scheme
+        self.host = host
+        self.port = port
+        self.is_proxy = is_proxy
+        self.session = None  # type: ClientSession
 
     async def connect(self, host, port,
                       scheme='http',
                       timeout=None,  # this parameter is deprecated
                       is_proxy=False):
+        """*** DEPRECATED ***
+            Provide the values via constructor instead.
+        """
         if not self.is_closed():
-            self.connector.close()
+            await self.session.close()
 
         self.scheme = scheme
         self.host = host
         self.port = port
         self.is_proxy = is_proxy
-
-        self.connector = aiohttp.TCPConnector()
-        req = aiohttp.ClientRequest('HEAD', yarl.URL.build(scheme=scheme, host=host, port=port))
-        self.connection = await self.connector.connect(req)
+        self.session = ClientSession(connector=aiohttp.TCPConnector())
 
     async def request(self, url, headers=None, method='GET', body=None):
         parts = urllib.parse.urlsplit(url)
@@ -169,28 +175,25 @@ class HttpClient(object):
             path = parts.path
             if parts.query:
                 path += '?' + parts.query
+        async with self.session.request(
+                method,
+                self.scheme + '://' + host + path,
+                headers=headers,
+                data=body) as resp:
+            return await HttpResponse.from_aiohttp_response(resp)
 
-        resp = await aiohttp.request(
-            method,
-            self.scheme + '://' + host + path,
-            headers=headers,
-            data=body,
-            connector=self.connector
-        )
-        return await HttpResponse.from_aiohttp_response(resp)
-
-    def close(self):
-        self.connector.close()
+    async def close(self):
+        await self.session.close()
 
     def is_closed(self):
-        return self.connector is None or self.connector.closed
+        return self.session is None or self.session.closed
 
     @classmethod
     async def query(cls, url, headers=None, method='GET', body=None):
-        resp = await aiohttp.request(method, url, headers=headers, data=body)
-        monocle_resp = await HttpResponse.from_aiohttp_response(resp)
-        resp.close()
-        return monocle_resp
+        async with aiohttp.request(method, url, headers=headers, data=body) as resp:
+            monocle_resp = await HttpResponse.from_aiohttp_response(resp)
+            resp.close()
+            return monocle_resp
 
 
 # Takes a response return value like:
