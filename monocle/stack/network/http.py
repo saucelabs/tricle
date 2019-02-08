@@ -192,7 +192,6 @@ class HttpClient(object):
     async def query(cls, url, headers=None, method='GET', body=None):
         async with aiohttp.request(method, url, headers=headers, data=body) as resp:
             monocle_resp = await HttpResponse.from_aiohttp_response(resp)
-            resp.close()
             return monocle_resp
 
 
