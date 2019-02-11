@@ -10,7 +10,7 @@ def main():
     yield c.connect('google.com', 443, scheme='https')
     resp = yield c.request('/')
     print(resp.body)
-    yield c.close()
+    c.close()
 
 
 monocle.launch(main)

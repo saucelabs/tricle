@@ -182,8 +182,8 @@ class HttpClient(object):
                 data=body) as resp:
             return await HttpResponse.from_aiohttp_response(resp)
 
-    async def close(self):
-        await self.session.close()
+    def close(self):
+        asyncio.ensure_future(self.session.close())
 
     def is_closed(self):
         return self.session is None or self.session.closed
