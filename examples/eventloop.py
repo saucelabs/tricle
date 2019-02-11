@@ -1,9 +1,4 @@
-import sys
-
-import monocle
-
 from monocle import _o
-monocle.init(sys.argv[1])
 
 from monocle.stack import eventloop
 from monocle.util import sleep
@@ -22,6 +17,7 @@ def nonyielding_oroutine(x, z=1):
 @_o
 def fail():
     raise Exception("whoo")
+    # make this a generator function, to demonstrate exceptions work properly in this context
     yield sleep(1)
 
 

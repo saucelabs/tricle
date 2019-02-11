@@ -1,12 +1,7 @@
-import sys
-import re
 import logging
-from collections import defaultdict
+import re
 
-import monocle
-from monocle import _o, Return
-monocle.init(sys.argv[1])
-
+from monocle import Return
 from monocle.stack import eventloop
 from monocle.stack.network import add_service
 from monocle.stack.network.http import HttpServer

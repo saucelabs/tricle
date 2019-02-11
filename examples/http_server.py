@@ -1,10 +1,6 @@
-import sys
 import logging
-import monocle
 
-from monocle import _o, Return
-monocle.init(sys.argv[1])
-
+from monocle import Return
 from monocle.stack import eventloop
 from monocle.stack.network import add_service
 from monocle.stack.network.http import HttpHeaders, HttpServer
@@ -24,6 +20,7 @@ def hello_http(req):
     headers.add('Set-Cookie', 'test0=blar; Path=/')
     headers.add('Set-Cookie', 'test1=blar; Path=/')
     yield Return(200, headers, content)
+
 
 add_service(s)
 eventloop.run()

@@ -1,10 +1,6 @@
-import sys
 import monocle
-monocle.init(sys.argv[1])
-
-from monocle.script_util import run
-
 from monocle import _o
+from monocle.script_util import run
 from monocle.util import sleep
 
 

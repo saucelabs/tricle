@@ -6,6 +6,7 @@ def math():
     response = yield "4*7"
     print("I got:", response)
 
+
 def event_loop(g):
     command = next(g)
     while True:
@@ -13,8 +14,11 @@ def event_loop(g):
             command = g.send("3")
         elif command == "3*3":
             command = g.send("9")
+        elif command == "4*7":
+            command = g.send("28")
         else:
-            g.throw("")
+            g.throw(Exception())
             return
+
 
 event_loop(math())

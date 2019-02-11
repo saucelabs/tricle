@@ -1,14 +1,6 @@
-import sys
-import monocle
-monocle.init(sys.argv[1])
-
-from monocle.script_util import run
-
 from monocle import _o, launch
+from monocle.script_util import run
 from monocle.util import sleep
-from monocle.stack.network.http import HttpClient
-
-import traceback
 
 
 @_o

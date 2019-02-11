@@ -1,11 +1,7 @@
-import sys
 import monocle
-monocle.init(sys.argv[1])
-
-from monocle.script_util import run
-
-from monocle import _o
 from monocle import Return, InvalidYieldException
+from monocle import _o
+from monocle.script_util import run
 
 
 @_o
@@ -28,6 +24,7 @@ def invalid_yield():
 @_o
 def ordinary():
     return "non-coroutines work"
+
 
 @_o
 def main():
@@ -54,9 +51,9 @@ def func_fail():
 
 @_o
 def example():
-
     monocle.launch(fail)
     monocle.launch(func_fail)
     yield main()
+
 
 run(example)
