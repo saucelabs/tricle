@@ -32,6 +32,9 @@ class StackConnection(object):
         self.buffer = self.buffer[:-n]
         return r
 
+    async def readexactly(self, size):
+        return await self.read(size)
+
     def resume(self):
         self.resume_called += 1
 
@@ -83,11 +86,11 @@ def network_server_running(addr, port):
     def handler(conn):
         while True:
             try:
-                msg = yield conn.read_until(EOL)
+                msg = yield conn.read_until(EOL.encode())
                 msg = msg.decode('utf-8')
             except network.ConnectionLost:
                 break
-            yield conn.write('you said: ' + msg.strip() + EOL)
+            yield conn.write(('you said: ' + msg.strip() + EOL).encode())
     service = network.Service(handler, bindaddr=addr, port=port)
     network.add_service(service)
     try:
@@ -115,8 +118,8 @@ def test_client():
         with network_client() as client:
             msg = 'ok'
             yield client.connect(addr, port)
-            yield client.write(msg + EOL)
-            result = yield client.read_until(EOL)
+            yield client.write((msg + EOL).encode())
+            result = yield client.read_until(EOL.encode())
             result = result.decode('utf-8')
             assert result == 'you said: ' + msg + EOL
     yield sleep(0.1)
