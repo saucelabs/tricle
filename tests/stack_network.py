@@ -86,11 +86,11 @@ def network_server_running(addr, port):
     def handler(conn):
         while True:
             try:
-                msg = yield conn.read_until(EOL.encode())
+                msg = yield conn.read_until(EOL)
                 msg = msg.decode('utf-8')
             except network.ConnectionLost:
                 break
-            yield conn.write(('you said: ' + msg.strip() + EOL).encode())
+            yield conn.write('you said: ' + msg.strip() + EOL)
     service = network.Service(handler, bindaddr=addr, port=port)
     network.add_service(service)
     try:
@@ -118,8 +118,8 @@ def test_client():
         with network_client() as client:
             msg = 'ok'
             yield client.connect(addr, port)
-            yield client.write((msg + EOL).encode())
-            result = yield client.read_until(EOL.encode())
+            yield client.write(msg + EOL)
+            result = yield client.read_until(EOL)
             result = result.decode('utf-8')
             assert result == 'you said: ' + msg + EOL
     yield sleep(0.1)

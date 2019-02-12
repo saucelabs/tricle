@@ -11,11 +11,11 @@ from o_test import test
 def handle_echo(conn):
     while True:
         try:
-            message = yield conn.read_until(b'\r\n')
-            message = message.decode('utf-8')
+            message = yield conn.read_until('\r\n')
+            message = message.decode('utf-8').strip()
         except ConnectionLost:
             break
-        yield conn.write(("you said: %s\r\n" % message.strip()).encode())
+        yield conn.write("you said: %s\r\n" % message)
 
 
 @test
@@ -28,8 +28,8 @@ def test_lots_of_messages():
         t = time.time()
         for x in range(1000):
             msg = "hello, world #%s!" % x
-            yield client.write(msg.encode() + b'\r\n')
-            echo_result = yield client.read_until(b"\r\n")
+            yield client.write(msg + '\r\n')
+            echo_result = yield client.read_until("\r\n")
             echo_result = echo_result.decode('utf-8')
             assert echo_result.strip() == "you said: %s" % msg, echo_result
         print('10000 loops in %.2fs' % (time.time() - t))

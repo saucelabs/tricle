@@ -45,8 +45,8 @@ class HttpHeaders(multidict.CIMultiDict):
 class HttpRequest(object):
     def __init__(self, proto='HTTP/1.0', host=None, method=None,
                  uri=None, args=None, remote_ip=None, headers=None,
-                 body: str = None, body_file: bytes = None, cookies=None):
-        self.aiohttp_request = None  # type: Request
+                 body: Optional[str] = None, body_file: bytes = None, cookies=None):
+        self.aiohttp_request: Request = None
         self.proto = proto
         self.host = host
         self.method = method

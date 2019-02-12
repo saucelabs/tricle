@@ -3,6 +3,7 @@
 # by Steven Hazel
 
 import asyncio
+from typing import Union
 
 from monocle import _o, Return, launch
 from monocle.callback import Callback
@@ -23,22 +24,26 @@ class Connection(object):
         self._current_timeout = None
         self._closed_flag = False
 
-    async def read_some(self):
+    async def read_some(self) -> bytes:
         # there's no equivalent of this "read as much as can be read
         # quickly" in the asychio streaming API -- just set a
         # reasonable limit
         return await self._reader.read(65536)
 
-    async def read(self, size):
+    async def read(self, size) -> bytes:
         return await self._reader.readexactly(size)
 
-    async def read_until(self, s):
+    async def read_until(self, s: Union[bytes, str]) -> bytes:
+        if isinstance(s, str):
+            s = s.encode()
         return await self._reader.readuntil(s)
 
-    async def readline(self):
+    async def readline(self) -> bytes:
         return await self._reader.readline()
 
-    async def write(self, data):
+    async def write(self, data: Union[bytes, str]) -> None:
+        if isinstance(data, str):
+            data = data.encode()
         self._writer.write(data)
         await self.flush()
 

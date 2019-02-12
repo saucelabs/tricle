@@ -22,7 +22,7 @@ def main():
     """
     c.timeout = 1
     yield c.connect('google.com', 80)
-    yield c.write(b"GET / HTTP/1.0\r\n\r\n")
+    yield c.write("GET / HTTP/1.0\r\n\r\n")
     c.timeout = 0
     x = yield c.read(40000)
     print(x)
