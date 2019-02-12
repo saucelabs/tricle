@@ -39,7 +39,7 @@ def test_side_effect():
     try:
         yield mock()
     except Exception as e:
-        assert 'a side effect' == e.message
+        assert 'a side effect' == str(e)
         yield Return(None)
     assert False, "expected exception"
 
@@ -59,6 +59,7 @@ def test_patch():
         assert result == 'mocked result'
 
 
+# FIXME patch decoration does not work at the moment
 @test
 @patch('monocle_mock.mock_me', new_callable=MagicMonocleMock)
 @_o
