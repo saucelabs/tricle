@@ -12,10 +12,10 @@ def handle_echo(conn):
     while True:
         try:
             message = yield conn.read_until('\r\n')
-            message = message.decode('utf-8')
+            message = message.decode('utf-8').strip()
         except ConnectionLost:
             break
-        yield conn.write("you said: %s\r\n" % message.strip())
+        yield conn.write("you said: %s\r\n" % message)
 
 
 @test
@@ -26,7 +26,7 @@ def test_lots_of_messages():
         client = Client()
         yield client.connect('localhost', 8000)
         t = time.time()
-        for x in range(10000):
+        for x in range(1000):
             msg = "hello, world #%s!" % x
             yield client.write(msg + '\r\n')
             echo_result = yield client.read_until("\r\n")

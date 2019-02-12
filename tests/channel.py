@@ -39,7 +39,7 @@ def recvxs(ch, xs):
 def test_buffers_oneway():
     for i in range(10):
         ch = Channel(i)
-        xs = list(range(10000))
+        xs = list(range(100))
         sendxs(ch, xs)
         yield recvxs(ch, xs)
 
@@ -69,7 +69,7 @@ def test_buffers_twoway():
     for i in range(10):
         ch1 = Channel(i)
         ch2 = Channel(i)
-        xs = list(range(10000))
+        xs = list(range(100))
         chat1(ch1, ch2, xs)
         yield chat2(ch1, ch2, xs)
 

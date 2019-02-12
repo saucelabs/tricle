@@ -7,8 +7,9 @@ from monocle.stack.network import add_service, Service
 @_o
 def echo(conn):
     their_message = yield conn.readline()
-    print("received: %r" % their_message.decode())
-    yield conn.write("you said: %s\r\n" % their_message.decode().strip())
+    their_message = their_message.decode()
+    print("received: %r" % their_message)
+    yield conn.write("you said: %s\r\n" % their_message.strip())
     print("response written")
 
 

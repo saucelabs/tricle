@@ -32,6 +32,9 @@ class StackConnection(object):
         self.buffer = self.buffer[:-n]
         return r
 
+    async def readexactly(self, size):
+        return await self.read(size)
+
     def resume(self):
         self.resume_called += 1
 

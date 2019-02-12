@@ -11,6 +11,7 @@ import urllib.request, urllib.error, urllib.parse
 import time
 import base64
 import http.cookies
+from typing import Optional
 
 import multidict
 import yarl
@@ -18,6 +19,7 @@ import yarl
 import asyncio
 import aiohttp.web
 from aiohttp import ClientTimeout, ClientSession
+from aiohttp.web_request import Request
 
 from monocle import _o, Return, log_exception, VERSION
 from monocle.stack.network import Service, SSLService, ConnectionLost, Client
@@ -43,16 +45,18 @@ class HttpHeaders(multidict.CIMultiDict):
 class HttpRequest(object):
     def __init__(self, proto='HTTP/1.0', host=None, method=None,
                  uri=None, args=None, remote_ip=None, headers=None,
-                 body=None, body_file=None, cookies=None):
-        self.aiohttp_request = None
+                 body: Optional[str] = None, body_file: Optional[bytes] = None, cookies=None):
+        self.aiohttp_request: Request = None
         self.proto = proto
         self.host = host
         self.method = method
         self.uri = uri
         self.remote_ip = remote_ip
         self.headers = headers
-        self.body = body
-        self.body_file = body_file
+        if body:
+            self.body_file = body.encode()
+        else:
+            self.body_file = body_file
 
         self.path, _, self.query = uri.partition('?')
         self.query_args = urllib.parse.parse_qs(self.query, keep_blank_values=True)
@@ -70,7 +74,7 @@ class HttpRequest(object):
                     pass
 
     @classmethod
-    def from_aiohttp_request(cls, request):
+    async def from_aiohttp_request(cls, request: Request):
         self = cls(
             proto=(request.scheme.upper() +
                    "/%s.%s" % (request.version.major, request.version.minor)),
@@ -80,7 +84,7 @@ class HttpRequest(object):
             args=request.post(),
             remote_ip=request.transport.get_extra_info('peername')[0],
             headers=request.headers,
-            body=request.read(),
+            body_file=await request.read(),
             cookies=request.cookies)
         self.aiohttp_request = request
         return self
@@ -102,6 +106,13 @@ class HttpRequest(object):
             # parsing error; no valid auth
             return None, None
         return username, password
+
+    @property
+    def body(self) -> Optional[str]:
+        if self.body_file:
+            return self.body_file.decode()
+
+        return None
 
 
 class HttpResponse(object):
@@ -245,6 +256,7 @@ class HttpRouter(object):
             if add_head:
                 self.routes['HEAD'].append((pattern, handler))
             return handler
+
         return decorator
 
     def get(self, pattern, add_head=True):
@@ -314,22 +326,23 @@ class HttpRouter(object):
 
 class HttpServer(Service, HttpRouter):
     def __init__(self, port, handler=None, bindaddr="", backlog=128,
-                 max_body_str_len=1024 * 1024):
+                 max_body_str_len: int = 1024 * 1024):
         HttpRouter.__init__(self)
         self.port = port
         self.bindaddr = bindaddr
         self.backlog = backlog
-        self.app = aiohttp.web.Application()
+        self.app = aiohttp.web.Application(client_max_size=max_body_str_len)
         self.handler = handler
 
-        async def _handler(request):
-            monocle_request = HttpRequest.from_aiohttp_request(request)
+        async def _handler(request: Request):
+            monocle_request = await HttpRequest.from_aiohttp_request(request)
             resp = await self.handle_request(monocle_request).future
             status, headers, body = extract_response(resp)
             if 'content-type' not in {k.lower() for k in headers.keys()}:
                 headers['Content-Type'] = 'text/html'
             headers = {(k, str(v)) for k, v in headers.items()}
             return aiohttp.web.Response(status=status, headers=headers, body=body)
+
         self.app.router.add_route('*', r'/{path:.*}', _handler)
 
     async def _add(self):

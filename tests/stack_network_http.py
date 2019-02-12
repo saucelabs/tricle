@@ -6,6 +6,7 @@ from monocle.stack import network
 from monocle.stack.network import http
 from monocle.util import sleep
 
+payload_multiplier = 1024 * 1024 * 10
 
 @_o
 def default_handler(conn):
@@ -19,7 +20,7 @@ def default_handler(conn):
 
 @contextmanager
 def http_server_running(port, handler=default_handler):
-    service = http.HttpServer(port, handler=handler)
+    service = http.HttpServer(port, handler=handler, max_body_str_len=payload_multiplier * 10)
     network.add_service(service)
     try:
         yield
@@ -58,7 +59,7 @@ def test_large_requests():
 
     @_o
     def _handler(conn):
-        recv_body.append(conn.body_file.read())
+        recv_body.append(conn.body)
         data = 'Hello, World!'
         headers = http.HttpHeaders()
         headers.add('Content-Length', len(data))
@@ -69,6 +70,6 @@ def test_large_requests():
         yield sleep(0.1)
         with http_client() as client:
             yield client.connect(addr, port)
-            send_body = 'x' * 1024 * 1024 * 10
-            r = yield client.request('/', method='POST', body='x' * 1024 * 1024 * 10)
+            send_body = 'x' * payload_multiplier
+            r = yield client.request('/', method='POST', body='x' * payload_multiplier)
             assert recv_body and recv_body[0] == send_body
