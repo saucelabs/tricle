@@ -45,7 +45,7 @@ class HttpHeaders(multidict.CIMultiDict):
 class HttpRequest(object):
     def __init__(self, proto='HTTP/1.0', host=None, method=None,
                  uri=None, args=None, remote_ip=None, headers=None,
-                 body: Optional[str] = None, body_file: bytes = None, cookies=None):
+                 body: Optional[str] = None, body_file: Optional[bytes] = None, cookies=None):
         self.aiohttp_request: Request = None
         self.proto = proto
         self.host = host
@@ -256,6 +256,7 @@ class HttpRouter(object):
             if add_head:
                 self.routes['HEAD'].append((pattern, handler))
             return handler
+
         return decorator
 
     def get(self, pattern, add_head=True):
@@ -341,6 +342,7 @@ class HttpServer(Service, HttpRouter):
                 headers['Content-Type'] = 'text/html'
             headers = {(k, str(v)) for k, v in headers.items()}
             return aiohttp.web.Response(status=status, headers=headers, body=body)
+
         self.app.router.add_route('*', r'/{path:.*}', _handler)
 
     async def _add(self):
