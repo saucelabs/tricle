@@ -21,7 +21,7 @@ class Connection(object):
         self.writing = False
         self.flush_cb = Callback()
         self.timeout = None
-        self._closed_flag = False
+        self._closed = False
 
     async def read_some(self) -> bytes:
         # there's no equivalent of this "read as much as can be read
@@ -62,15 +62,14 @@ class Connection(object):
         return await self._writer.drain()
 
     def close(self):
-        self._closed_flag = True
+        self._closed = True
         if self._writer:
             self._writer.close()
 
     def is_closed(self):
         # note that this actually doesn't return True until all data
         # has been read
-        return self._closed_flag
-        return self._reader.at_eof()
+        return self._closed
 
 
 class Service(object):
@@ -81,6 +80,7 @@ class Service(object):
                 await launch(handler, connection).future
             finally:
                 writer.close()
+
         self._handler = _handler
         self.port = port
         self.bindaddr = bindaddr
@@ -121,10 +121,12 @@ class Client(Connection):
         Connection.__init__(self, None, None, *args, **kwargs)
 
     async def connect(self, host, port):
-        self._connection_timeout = self.timeout
-        reader, writer = await asyncio.open_connection(host=host, port=port, limit=104857600)
-        self._reader = reader
-        self._writer = writer
+        try:
+            reader, writer = await asyncio.open_connection(host=host, port=port, limit=104857600)
+            self._reader = reader
+            self._writer = writer
+        except asyncio.TimeoutError as e:
+            raise ConnectionLost(f"failed to establish connection to {host}:{port} within {self.timeout}s") from e
 
 
 class SSLClient(Client):
