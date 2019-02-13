@@ -11,6 +11,13 @@ from monocle.stack import eventloop
 
 
 class ConnectionLost(Exception):
+    """ *** DEPRECATED ***
+        Please use ConnectionTimeout instead.
+    """
+    pass
+
+
+class ConnectionTimeout(TimeoutError, ConnectionLost):
     pass
 
 
@@ -30,13 +37,13 @@ class Connection(object):
         try:
             return await asyncio.wait_for(self._reader.read(65536), self.timeout)
         except asyncio.TimeoutError as e:
-            raise ConnectionLost() from e
+            raise ConnectionTimeout() from e
 
     async def read(self, size) -> bytes:
         try:
             return await asyncio.wait_for(self._reader.readexactly(size), self.timeout)
         except asyncio.TimeoutError as e:
-            raise ConnectionLost() from e
+            raise ConnectionTimeout() from e
 
     async def read_until(self, s: Union[bytes, str]) -> bytes:
         if isinstance(s, str):
@@ -44,13 +51,13 @@ class Connection(object):
         try:
             return await asyncio.wait_for(self._reader.readuntil(s), self.timeout)
         except asyncio.TimeoutError as e:
-            raise ConnectionLost() from e
+            raise ConnectionTimeout() from e
 
     async def readline(self) -> bytes:
         try:
             return await asyncio.wait_for(self._reader.readline(), self.timeout)
         except asyncio.TimeoutError as e:
-            raise ConnectionLost() from e
+            raise ConnectionTimeout() from e
 
     async def write(self, data: Union[bytes, str]) -> None:
         if isinstance(data, str):
@@ -122,11 +129,12 @@ class Client(Connection):
 
     async def connect(self, host, port):
         try:
-            reader, writer = await asyncio.open_connection(host=host, port=port, limit=104857600)
+            reader, writer = await asyncio.wait_for(asyncio.open_connection(host=host, port=port, limit=104857600),
+                                                    self.timeout)
             self._reader = reader
             self._writer = writer
         except asyncio.TimeoutError as e:
-            raise ConnectionLost(f"failed to establish connection to {host}:{port} within {self.timeout}s") from e
+            raise ConnectionTimeout(f"failed to establish connection to {host}:{port} within {self.timeout}s") from e
 
 
 class SSLClient(Client):
