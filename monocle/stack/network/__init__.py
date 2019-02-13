@@ -10,15 +10,16 @@ from monocle.callback import Callback
 from monocle.stack import eventloop
 
 
-class ConnectionLost(Exception):
-    """ *** DEPRECATED ***
-        Please use ConnectionTimeout instead.
-    """
+class ConnectionException(ConnectionError):
     pass
 
 
-class ConnectionTimeout(TimeoutError, ConnectionLost):
+class ConnectionTimeout(asyncio.TimeoutError, ConnectionException):
     pass
+
+
+"""  *** DEPRECATED *** For generic errors, please use ConnectionException instead."""
+ConnectionLost = ConnectionException
 
 
 class Connection(object):
