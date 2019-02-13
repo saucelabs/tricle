@@ -2,7 +2,7 @@ import asyncio
 import collections
 
 
-class Callback(object):
+class Callback(collections.abc.Awaitable):
     """
     A monocle Callback object, implemented using asyncio.Future.
     """
@@ -28,6 +28,9 @@ class Callback(object):
             self.future.set_exception(result)
         else:
             self.future.set_result(result)
+
+    def __await__(self):
+        return self.future.__await__()
 
 
 def defer(result):
