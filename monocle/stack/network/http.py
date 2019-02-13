@@ -251,7 +251,9 @@ class HttpRouter(object):
             pattern = re.compile("^" + pattern + "$")
 
         def decorator(f):
-            handler = _o(f)
+            if not asyncio.iscoroutinefunction(f):
+                # don't require the @_o decorator *and* the HttpServer decorator
+                handler = _o(f)
             self.routes[method].append((pattern, handler))
             if add_head:
                 self.routes['HEAD'].append((pattern, handler))
