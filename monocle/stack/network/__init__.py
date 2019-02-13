@@ -21,25 +21,36 @@ class Connection(object):
         self.writing = False
         self.flush_cb = Callback()
         self.timeout = None
-        self._current_timeout = None
         self._closed_flag = False
 
     async def read_some(self) -> bytes:
         # there's no equivalent of this "read as much as can be read
         # quickly" in the asychio streaming API -- just set a
         # reasonable limit
-        return await self._reader.read(65536)
+        try:
+            return await asyncio.wait_for(self._reader.read(65536), self.timeout)
+        except asyncio.TimeoutError as e:
+            raise ConnectionLost() from e
 
     async def read(self, size) -> bytes:
-        return await self._reader.readexactly(size)
+        try:
+            return await asyncio.wait_for(self._reader.readexactly(size), self.timeout)
+        except asyncio.TimeoutError as e:
+            raise ConnectionLost() from e
 
     async def read_until(self, s: Union[bytes, str]) -> bytes:
         if isinstance(s, str):
             s = s.encode()
-        return await self._reader.readuntil(s)
+        try:
+            return await asyncio.wait_for(self._reader.readuntil(s), self.timeout)
+        except asyncio.TimeoutError as e:
+            raise ConnectionLost() from e
 
     async def readline(self) -> bytes:
-        return await self._reader.readline()
+        try:
+            return await asyncio.wait_for(self._reader.readline(), self.timeout)
+        except asyncio.TimeoutError as e:
+            raise ConnectionLost() from e
 
     async def write(self, data: Union[bytes, str]) -> None:
         if isinstance(data, str):
