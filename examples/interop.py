@@ -16,7 +16,7 @@ async def four():
     print('Running in two')
     await asyncio.sleep(0)
     print('Done with two')
-    return await square(2).future
+    return await square(2)
 
 
 @_o
@@ -27,7 +27,7 @@ def eight():
 
 async def fail():
     raise Exception("boo")
-    print(await square(2).future)
+    print(await square(2))
 
 
 @_o

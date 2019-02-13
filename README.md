@@ -43,9 +43,9 @@ Example interoperation with asyncio:
         y = yield slow_cube(x * x)
         yield Return(y)
         
-    # from native code, monocle oroutines return an object with a future that can be awaited:
+    # from native code, monocle oroutines can be awaited seamlessly:
     async def slow_fourth_power(x):
-        y = await slow_square(x * x).future
+        y = await slow_square(x * x)
         return y
 
 ## Recommendations

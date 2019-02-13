@@ -336,7 +336,7 @@ class HttpServer(Service, HttpRouter):
 
         async def _handler(request: Request):
             monocle_request = await HttpRequest.from_aiohttp_request(request)
-            resp = await self.handle_request(monocle_request).future
+            resp = await self.handle_request(monocle_request)
             status, headers, body = extract_response(resp)
             if 'content-type' not in {k.lower() for k in headers.keys()}:
                 headers['Content-Type'] = 'text/html'
