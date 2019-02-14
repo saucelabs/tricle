@@ -22,8 +22,7 @@ setup(name="tricle",
       url="http://github.com/saucelabs/tricle",
       packages=['monocle',
                 'monocle.stack',
-                'monocle.stack.network',
-                'monocle.twisted_stack'],
+                'monocle.stack.network'],
       install_requires=install_requires,
       license='MIT'
       )
