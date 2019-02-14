@@ -1,3 +1,5 @@
+import asyncio
+
 from o_test import test, tests
 from contextlib import contextmanager
 
@@ -19,7 +21,6 @@ class StackConnection(object):
         self.connect_cb = Callback()
         self.out = []
         self.disconnect_called = 0
-        self.resume_called = 0
 
     def disconnect(self):
         self.disconnect_called += 1
@@ -35,18 +36,26 @@ class StackConnection(object):
     async def readexactly(self, size):
         return await self.read(size)
 
-    def resume(self):
-        self.resume_called += 1
-
     def write(self, data):
         self.out.append(data)
+
+
+class SlowStackConnection(StackConnection):
+
+    def __init__(self, delay: float):
+        super().__init__()
+        self.delay = delay
+
+    async def read(self, n):
+        await asyncio.sleep(self.delay)
+        return await super(SlowStackConnection, self).read()
 
 
 @tests
 class ConnectionTestCase(object):
 
     def __init__(self):
-        self.stack_conn = StackConnection()
+        self.stack_conn = SlowStackConnection(delay=0.2)
         self.conn = network.Connection(self.stack_conn, self.stack_conn)
 
     @property
@@ -66,7 +75,6 @@ class ConnectionTestCase(object):
             pass
         else:
             raise Exception('ConnectionLost should be raised')
-        assert self.stack_conn.resume_called == 1
 
     @_o
     def test_read_some_timeout(self):
@@ -77,7 +85,6 @@ class ConnectionTestCase(object):
             pass
         else:
             raise Exception('ConnectionLost should be raised')
-        assert self.stack_conn.resume_called == 1
 
 
 @contextmanager
@@ -91,6 +98,7 @@ def network_server_running(addr, port):
             except network.ConnectionLost:
                 break
             yield conn.write('you said: ' + msg.strip() + EOL)
+
     service = network.Service(handler, bindaddr=addr, port=port)
     network.add_service(service)
     try:

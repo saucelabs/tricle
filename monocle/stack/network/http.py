@@ -148,7 +148,7 @@ class HttpClient(object):
         self.host = host
         self.port = port
         self.is_proxy = is_proxy
-        self.session = None  # type: ClientSession
+        self.session: ClientSession = None
 
     async def connect(self, host, port,
                       scheme='http',
