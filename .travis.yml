@@ -1,0 +1,21 @@
+language: python
+sudo: false
+
+matrix:
+  include:
+    - python: 3.6
+      env: id=latest TOXENV=py36
+
+cache:
+  - apt
+
+addons:
+  apt:
+    packages:
+      - libssl-dev
+
+install:
+  - pip install tox
+
+script:
+  - tox
