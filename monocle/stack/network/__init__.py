@@ -10,7 +10,7 @@ from monocle.callback import Callback
 from monocle.stack import eventloop
 
 
-class ConnectionException(ConnectionError):
+class ConnectionException(Exception):
     pass
 
 
