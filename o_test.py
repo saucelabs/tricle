@@ -218,7 +218,7 @@ def main(args):
 if __name__ == '__main__':
     try:
         main(sys.argv[1:])
-    except:
+    except Exception:
         traceback.print_exc(file=sys.stdout)
         raise
     finally:
