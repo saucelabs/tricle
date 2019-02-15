@@ -85,7 +85,7 @@ class Service(object):
         async def _handler(reader, writer):
             connection = Connection(reader, writer)
             try:
-                await launch(handler, connection).future
+                await launch(handler, connection)
             finally:
                 writer.close()
 
