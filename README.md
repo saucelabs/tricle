@@ -58,3 +58,10 @@ When porting code from monocle to python3, these steps are recommended:
 asyncio components. Always fix bugs by moving toward more native code.
 
 3) Over time, rewrite oroutines to use native async/await syntax.
+
+## Breaking Changes
+Here is a list of breaking changes to consider when moving from monocle to tricle.
+### HttpRequest.body_file
+HttpRequest.body_file is now a bytes object.
+If you have used `request.body_file.read()` to get a string in the past, you must now use `request.body_file.decode()`
+instead. Another option is to use the convenience property `request.body`, which returns the body as string.

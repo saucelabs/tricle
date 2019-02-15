@@ -12,7 +12,7 @@ from _pytest.assertion.rewrite import (
     PYC_TAIL,
     _read_pyc,
     _rewrite_test,
-    _make_rewritten_pyc,
+    _write_pyc,
     AssertionRewritingHook,
 )
 
@@ -119,7 +119,7 @@ class AssertionRewritingHook(AssertionRewritingHook):
             if write:
                 self.session = None
                 try:
-                    _make_rewritten_pyc(state, source_stat, pyc, co)
+                    _write_pyc(state, co, source_stat, pyc)
                 finally:
                     self.session = sess
         else:

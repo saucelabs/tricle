@@ -13,6 +13,7 @@ class Callback(collections.abc.Awaitable):
     def add(self, handler):
         if not callable(handler):
             raise TypeError("'%s' object is not callable" % type(handler).__name__)
+
         def callback_handler(fut):
             e = fut.exception()
             if e:

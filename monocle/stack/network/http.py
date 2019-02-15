@@ -2,31 +2,30 @@
 #
 # by Steven Hazel
 
-import os
-import logging
-import urllib.parse
-import collections
-import re
-import urllib.request, urllib.error, urllib.parse
-import time
+import asyncio
 import base64
+import collections
 import http.cookies
+import logging
+import re
+import time
+import urllib.error
+import urllib.parse
+import urllib.parse
+import urllib.request
 from typing import Optional
 
-import multidict
-import yarl
-
-import asyncio
 import aiohttp.web
-from aiohttp import ClientTimeout, ClientSession
+import multidict
+from aiohttp import ClientSession
 from aiohttp.web_request import Request
 
-from monocle import _o, Return, log_exception, VERSION
-from monocle.stack.network import Service, SSLService, ConnectionLost, Client
+from monocle import _o, Return, log_exception
+from monocle.stack.network import Service, SSLService
 
 try:
     from monocle.stack.network import SSLClient
-except:
+except ImportError:
     pass
 
 log = logging.getLogger(__name__)
