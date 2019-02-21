@@ -250,6 +250,7 @@ class HttpRouter(object):
             pattern = re.compile("^" + pattern + "$")
 
         def decorator(f):
+            handler = f
             if not asyncio.iscoroutinefunction(f):
                 # don't require the @_o decorator *and* the HttpServer decorator
                 handler = _o(f)
