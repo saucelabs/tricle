@@ -63,10 +63,8 @@ def _o(f):
                     return r.value
 
                 try:
-                    if isinstance(r, Callback):
-                        r = await r.future
-                    elif (asyncio.iscoroutine(r) or
-                          isinstance(r, asyncio.Future)):
+                    if (isinstance(r, (Callback, asyncio.Future)) or
+                        asyncio.iscoroutine(r)):
                         r = await r
                     else:
                         raise InvalidYieldException(
