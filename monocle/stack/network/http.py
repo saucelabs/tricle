@@ -297,7 +297,6 @@ class HttpRouter(object):
 
     @_o
     def handle_request(self, req):
-        before = time.time()
         resp = None
 
         handler, kwargs = self.route_match(req)
@@ -311,17 +310,6 @@ class HttpRouter(object):
         except Exception:
             log_exception()
             resp = (500, {}, "500 Internal Server Error")
-        after = time.time()
-
-        content_length = 0
-        if len(resp) > 2:
-            content_length = len(resp[2])
-
-        log.info("[%s] %s %s %s -> %s (%s bytes, %.0fms); %s",
-                 req.remote_ip,
-                 req.method, req.path, req.proto,
-                 resp[0], content_length, (after - before) * 1000,
-                 req.headers.get('user-agent'))
 
         yield Return(resp)
 
@@ -349,7 +337,7 @@ class HttpServer(Service, HttpRouter):
 
     async def _add(self):
         self._server = await asyncio.get_event_loop().create_server(
-            self.app.make_handler(),
+            self.app.make_handler(access_log_format='[%a] "%r" -> %s (%b bytes, %Tfs) "%{Referer}i" "%{User-Agent}i"'),
             host=self.bindaddr,
             port=self.port,
             backlog=self.backlog)
