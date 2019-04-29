@@ -36,7 +36,7 @@ def main():
         yield fail()
     except Exception as e:
         print("Caught exception:", type(e), str(e))
-
+        assert str(e) == "oroutine boo"
     try:
         yield invalid_yield()
     except InvalidYieldException as e:
