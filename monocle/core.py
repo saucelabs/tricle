@@ -36,7 +36,12 @@ class InvalidYieldException(TypeError):
 def _o(f):
     @functools.wraps(f)
     def coroutine_wrapper(*a, **k):
-        gen_f = f(*a, **k)
+        gen_f = None
+        try:
+            gen_f = f(*a, **k)
+        except Exception as e:
+            # prevents exception from escaping the wrapper
+            return defer(e)
         if not isinstance(gen_f, types.GeneratorType):
             if isinstance(gen_f, Callback):
                 return gen_f
