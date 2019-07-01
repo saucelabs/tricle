@@ -82,7 +82,12 @@ def _o(f):
         cb = Callback()
 
         def _trigger_callback_with_future(fut):
-            e = fut.exception()
+            try:
+                e = fut.exception()
+            except Exception as fe:
+                # either future wasn't done yet or it got cancelled (e.g. timeout)
+                e = fe
+
             if e:
                 cb(e)
             else:
