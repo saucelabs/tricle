@@ -1,7 +1,7 @@
 from . import core
 from .core import _o, o, launch, Return, InvalidYieldException, log_exception
 
-VERSION = '1.6'
+VERSION = '1.7'
 
 _stack_name = None
 
