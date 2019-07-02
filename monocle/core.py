@@ -81,17 +81,14 @@ def _o(f):
         fut = asyncio.ensure_future(gen_wrapper())
         cb = Callback()
 
-        def _trigger_callback_with_future(fut):
+        def _trigger_callback_with_future(futura):
             try:
-                e = fut.exception()
-            except Exception as fe:
+                res = futura.result()
+            except Exception as ee:
                 # either future wasn't done yet or it got cancelled (e.g. timeout)
-                e = fe
+                res = ee
 
-            if e:
-                cb(e)
-            else:
-                cb(fut.result())
+            cb(res)
 
         fut.add_done_callback(_trigger_callback_with_future)
         return cb
