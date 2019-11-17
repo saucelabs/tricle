@@ -133,6 +133,6 @@ class AssertionRewritingHook(AssertionRewritingHook):
 
 
 def make_assertion_hook():
-    c = config.get_config()
+    c = config.get_config([])
     c.parse([])
     return install_importhook(c)
