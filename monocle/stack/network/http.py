@@ -80,7 +80,7 @@ class HttpRequest(object):
             host=request.host,
             method=request.method,
             uri=request.raw_path,
-            args=request.post(),
+            args=await request.post(),
             remote_ip=request.transport.get_extra_info('peername')[0],
             headers=request.headers,
             body_file=await request.read(),
