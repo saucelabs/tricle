@@ -1,8 +1,11 @@
-# tricle
+Tricle
+======
 
-tricle is a python3 [monocle](http://github.com/saucelabs/monocle)
-adapter, allowing monocle code ported from python2 to work with
-minimal modifications, and to interoperate gracefully with python3's
+> Note: this package is work in progress. We do not use this in production systems yet. So please use at your own risk.
+
+Tricle is a Python3 [Monocle](http://github.com/saucelabs/monocle)
+adapter, allowing monocle code ported from Python2 to work with
+minimal modifications, and to interoperate gracefully with Python3's
 native asyncio framework. It has two main goals:
 
 1) Allow for a smooth, incremental transition away from monocle-based
@@ -22,7 +25,6 @@ functionality may not be copied, especially where asyncio alternatives
 exist.
 
 ## Examples
-
 Example interoperation with asyncio:
 
     # monocle oroutines work unmodified:
@@ -31,7 +33,7 @@ Example interoperation with asyncio:
         yield monocle.util.sleep(x)
         yield Return(x * x)
 
-    # here's how to do something similar with asyncio and python3 async/await syntax:
+    # here's how to do something similar with asyncio and Python3 async/await syntax:
     async slow_cube(x):
         await asyncio.sleep(x)
         return x * x * x
@@ -49,8 +51,7 @@ Example interoperation with asyncio:
         return y
 
 ## Recommendations
-
-When porting code from monocle to python3, these steps are recommended:
+When porting code from monocle to Python3, these steps are recommended:
 
 1) Run 2to3 on your code, and install tricle.
 
@@ -61,6 +62,7 @@ asyncio components. Always fix bugs by moving toward more native code.
 
 ## Breaking Changes
 Here is a list of breaking changes to consider when moving from monocle to tricle.
+
 ### HttpRequest.body_file
 HttpRequest.body_file is now a bytes object.
 If you have used `request.body_file.read()` to get a string in the past, you must now use `request.body_file.decode()`
